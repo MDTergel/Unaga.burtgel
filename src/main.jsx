@@ -10,10 +10,14 @@ import {
 import "./styles.css";
 
 const initialHorses = [
-  { name: "Бор Олбо", id: "HU-2024-001", sex: "Азарга", breed: "Моринд", age: "6 настай", image: "/uploads/azraga.png", accent: "#b7e4cb" },
+  { name: "Бор Олбо", id: "HU-2024-001", sex: "Азарга", breed: "Моринд", age: "6 настай", image: `${import.meta.env.BASE_URL}uploads/azraga.png`, accent: "#b7e4cb" },
   { name: "Сартуул", id: "HU-2024-018", sex: "Гүү", breed: "Соёмбо", age: "5 настай", image: "https://images.unsplash.com/photo-1551887196-72e32bfc7bf3?auto=format&fit=crop&w=300&q=85", accent: "#d7d1ff" },
   { name: "Хара Ноён", id: "HU-2023-042", sex: "Азарга", breed: "Адани", age: "7 настай", image: "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?auto=format&fit=crop&w=300&q=85", accent: "#f1d39a" },
 ];
+
+const assetUrl = (path) => path?.startsWith("/uploads/")
+  ? `${import.meta.env.BASE_URL}${path.slice(1)}`
+  : path;
 
 const nav = [
   ["dashboard", LayoutDashboard, "Хяналтын самбар"],
@@ -69,9 +73,9 @@ function App() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/horses").then((r) => r.ok ? r.json() : []),
-      fetch("/api/profile").then((r) => r.ok ? r.json() : null),
-      fetch("/api/herds").then((r) => r.ok ? r.json() : []),
+      fetch("/api/horses").then((r) => r.ok ? r.json() : []).catch(() => []),
+      fetch("/api/profile").then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch("/api/herds").then((r) => r.ok ? r.json() : []).catch(() => []),
     ])
       .then(([horseRows, profileRow, herdRows]) => {
         setHorses(horseRows.map((horse) => ({ ...horse, accent: horse.accent || "#dce7df" })));
@@ -400,7 +404,7 @@ function App() {
           <div className="herd-list-grid">
             {herds.map((item) => (
               <button className="herd-list-card" key={item.id} onClick={() => { setSelectedHerdId(item.id); setHerdFilter("all"); }}>
-                <img src={item.stallion_image || "/uploads/azraga.png"} alt={item.stallion_name || item.name}/>
+                <img src={assetUrl(item.stallion_image || "/uploads/azraga.png")} alt={item.stallion_name || item.name}/>
                 <span className="herd-list-card-body"><small>СҮРГИЙН БҮЛЭГ</small><strong>{item.name}</strong><span>Азарга: {item.stallion_name || "холбоогүй"}</span><span>Нийт {item.total_count} · {item.mare_count} гүү · {item.foal_count} төл</span></span>
                 <ArrowRight size={18}/>
               </button>
@@ -410,7 +414,7 @@ function App() {
         ) : !herd ? <div className="panel herd-loading">Сүргийн мэдээлэл ачаалж байна...</div> : (
           <>
             {herd.stallion && <button className="herd-stallion" onClick={() => showHorseDetails(herd.stallion)}>
-              <img src={herd.stallion?.image || "/uploads/azraga.png"} alt={herd.stallion?.name || "Азарга"}/>
+              <img src={assetUrl(herd.stallion?.image || "/uploads/azraga.png")} alt={herd.stallion?.name || "Азарга"}/>
               <span className="herd-stallion-copy"><small>ХОЛБОГДСОН АЗАРГА</small><strong>{herd.stallion.name}</strong><span>{herd.stallion.id}</span></span>
               <span className="herd-stallion-meta">{herd.stallion?.age || ""} <ArrowRight size={17}/></span>
             </button>}
@@ -509,7 +513,7 @@ function App() {
               <div className="sun"/>
               <div className="mountain one"/>
               <div className="mountain two"/>
-              <img src="/uploads/azraga.png" alt="Бор Олбо азарга"/>
+              <img src={assetUrl("/uploads/azraga.png")} alt="Бор Олбо азарга"/>
             </div>
           </div>
 
@@ -563,7 +567,7 @@ function App() {
               </div>
               <div className="matchup">
                 <div className="match-horse">
-                    <span><img src={horses[0]?.image || "/uploads/azraga.png"} alt=""/></span>
+                    <span><img src={assetUrl(horses[0]?.image || "/uploads/azraga.png")} alt=""/></span>
                     <strong>{horses[0]?.name || "Азарга сонгоно уу"}</strong><small>{horses[0]?.sex || "—"}</small>
                 </div>
                 <div className="match-score">
@@ -571,7 +575,7 @@ function App() {
                   <b><Heart size={13}/> Сайн хослол</b>
                 </div>
                 <div className="match-horse">
-                  <span><img src={horses[1]?.image || "/uploads/azraga.png"} alt=""/></span>
+                  <span><img src={assetUrl(horses[1]?.image || "/uploads/azraga.png")} alt=""/></span>
                   <strong>{horses[1]?.name || "Гүү сонгоно уу"}</strong><small>{horses[1]?.sex || "—"}</small>
                 </div>
               </div>
